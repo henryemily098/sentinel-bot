@@ -24,3 +24,6 @@ Anda juga bisa menggunakan credentials test yang telah kami sediakan untuk tiap 
 </ul>
 
 Isi credentials-credentials tersebut lalu sudah bisa menjalankan Sentinel Bot anda sendiri.
+
+## ⚠️CATATAN⚠️
+Membuka projek ini terutama backend menggunakan Netbeans memerlukan beberapa konfigurasi manual tambahan seperti Project Lombok. Disarankan untuk membuka project ini menggunakan <a href="https://www.jetbrains.com/idea/">IntelliJ</a>.
