@@ -28,8 +28,8 @@ public class ConfigurationSocket extends BaseSocket {
     @Autowired
     private ConfigurationRepo repository;
 
-    @MessageMapping("/configuration/{id}")
-    @SendTo("/socket-response/configuration/{id}")
+    @MessageMapping("/{session_id}/configuration/{id}")
+    @SendTo("/socket-response/{session_id}/configuration/{id}")
     public Configuration handleConfigurationInfo(@DestinationVariable String id, SimpMessageHeaderAccessor headerAccessor)
     {
         Optional<Configuration> configResponse = this.repository.findConfigurationById(id);
@@ -66,8 +66,8 @@ public class ConfigurationSocket extends BaseSocket {
         return configuration;
     }
 
-    @MessageMapping("/configuration/{id}/update")
-    @SendTo("/socket-response/configuration/{id}/update")
+    @MessageMapping("/{session_id}/configuration/{id}/update")
+    @SendTo("/socket-response/{session_id}/configuration/{id}/update")
     public Configuration handleConfigurationUpdate(@DestinationVariable String id, @Payload Configuration config, SimpMessageHeaderAccessor headerAccessor)
     {
         Member member = (Member)headerAccessor.getSessionAttributes().get("clientMemberUser-" + id);
@@ -80,8 +80,7 @@ public class ConfigurationSocket extends BaseSocket {
                 e.printStackTrace();
             }
         }
-        if((member.getNick() == null && !config.getNickname().isEmpty()) || (member.getNick() != null && config.getNickname().isEmpty()) || (member.getNick() != null && !member.getNick().equals(config.getNickname())))
-        {
+        if((member.getNick() == null && !config.getNickname().isEmpty()) || (member.getNick() != null && config.getNickname().isEmpty()) || (member.getNick() != null && !member.getNick().equals(config.getNickname()))) {
             try {
                 member = this.updateNicknameMember(id, config.getNickname().isEmpty() ? null : config.getNickname(), 0, 3);
                 headerAccessor.getSessionAttributes().put("clientMemberUser-" + id, member);

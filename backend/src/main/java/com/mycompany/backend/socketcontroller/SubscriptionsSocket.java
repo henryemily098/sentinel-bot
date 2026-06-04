@@ -28,8 +28,8 @@ public class SubscriptionsSocket extends BaseSocket {
     @Autowired
     private SubscriptionsRepo repository;
 
-    @MessageMapping("/subscriptions/{userId}")
-    @SendTo("/socket-response/subscriptions/{userId}")
+    @MessageMapping("/{session_id}/subscriptions/{userId}")
+    @SendTo("/socket-response/{session_id}/subscriptions/{userId}")
     public List<Subscriptions> handleSubscriptionsList(@DestinationVariable String userId, SimpMessageHeaderAccessor headerAccessor)
     {
         List<Subscriptions> subscriptionsList = this.repository.findAllSubscriptionsByOwnerId(userId);
@@ -63,8 +63,8 @@ public class SubscriptionsSocket extends BaseSocket {
         return subscriptionsList;
     }
 
-    @MessageMapping("/subscriptions/{userId}/get/{guildId}")
-    @SendTo("/socket-response/subscriptions/{userId}/get/{guildId}")
+    @MessageMapping("/{session_id}/subscriptions/{userId}/get/{guildId}")
+    @SendTo("/socket-response/{session_id}/subscriptions/{userId}/get/{guildId}")
     public Subscriptions handleSubscriptionsList(@DestinationVariable String userId, @DestinationVariable String guildId)
     {
         Subscriptions subsGuild = null;
@@ -83,8 +83,8 @@ public class SubscriptionsSocket extends BaseSocket {
         return subsGuild;
     }
 
-    @MessageMapping("/subscriptions/{userId}/add/{guildId}")
-    @SendTo("/socket-response/subscriptions/{userId}/add/{guildId}")
+    @MessageMapping("/{session_id}/subscriptions/{userId}/add/{guildId}")
+    @SendTo("/socket-response/{session_id}/subscriptions/{userId}/add/{guildId}")
     public String handleSubscriptionsAdd(@DestinationVariable String userId, @DestinationVariable String guildId, @Payload GuildBody body)
     {
         Optional<Subscriptions> subsGuildRepo = this.repository.findSubscriptionsById(guildId);
@@ -112,9 +112,9 @@ public class SubscriptionsSocket extends BaseSocket {
         }
     }
 
-    @MessageMapping("/subscriptions/{userId}/replace/{replaceGuildId}")
-    @SendTo("/socket-response/subscriptions/{userId}/replace/{replaceGuildId}")
-    public String handleSubscriptionsReplace(@DestinationVariable String userId, @DestinationVariable String replaceGuildId, @Payload String guildId)
+    @MessageMapping("/{session_id}/subscriptions/{userId}/replace/{replaceGuildId}")
+    @SendTo("/socket-response/{session_id}/subscriptions/{userId}/replace/{replaceGuildId}")
+    public String handleSubscriptionsReplace(@DestinationVariable String session_id, @DestinationVariable String userId, @DestinationVariable String replaceGuildId, @Payload String guildId)
     {
         Optional<Subscriptions> subsGuildRepo = this.repository.findSubscriptionsById(replaceGuildId);
         try {

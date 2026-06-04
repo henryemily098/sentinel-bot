@@ -39,19 +39,19 @@ const channelIcons = {
     5: <BsMegaphone />
 }
 
-function Configuration({ channels, client, guild, isSubscribed }) {
+function Configuration({ channels, client, guild, isSubscribed, session }) {
     let { contains } = useFilter({ sensitivity: "base" });
     let { collection, filter } = useListCollection({
         initialItems: channels.map((channel) => { return { label: channel.name, value: channel.id } }),
         filter: contains
     });
     let [loading, setLoading] = useState(false);
-    let [loaded, setLoaded] = useState(true);
+    let [loaded, setLoaded] = useState(false);
 
     let [nickname, setNickname] = useState("");
     let [prefix, setPrefix] = useState("");
     let [logChannelId, setLogChannelId] = useState([]);
-    let [aiSenstivity, setAISensitivity] = useState([1]);
+    let [aiSenstivity, setAISensitivity] = useState([0]);
     let [badwordsEnabled, setBadwordsEnabled] = useState(false);
     let [sexualHarassmentDetected, setSexualHarassmentDetected] = useState(false);
     let [groomingDetected, setGroomingDetected] = useState(false);
@@ -60,6 +60,9 @@ function Configuration({ channels, client, guild, isSubscribed }) {
     let [phisingLinkDetected, setPhisingLinkDetected] = useState(false);
 
     useEffect(() => {
+        let configSub = null;
+        let updateSub = null;
+
         const checkConnection = () => {
             if(!client.connected)
             {
@@ -67,9 +70,9 @@ function Configuration({ channels, client, guild, isSubscribed }) {
                 return;
             }
             client.publish({
-                destination: `/socket-request/configuration/${guild.id}`
+                destination: `/socket-request/${session}/configuration/${guild.id}`
             });
-            client.subscribe(`/socket-response/configuration/${guild.id}`, (response) => {
+            configSub = client.subscribe(`/socket-response/${session}/configuration/${guild.id}`, (response) => {
                 let cfg = JSON.parse(response.body);
                 setNickname(cfg.nickname || "");
                 setPrefix(cfg.prefix);
@@ -81,21 +84,27 @@ function Configuration({ channels, client, guild, isSubscribed }) {
                 setScammerDetected(cfg.scammerDetected);
                 setOnlineGambleDetected(cfg.onlineGambleDetected);
                 setPhisingLinkDetected(cfg.phisingLinkDetected);
-                setLoaded(false);
+                setLoaded(true);
             });
-            client.subscribe(`/socket-response/configuration/${guild.id}/update`, (response) => {
-                setLoading(false);
+            updateSub = client.subscribe(`/socket-response/${session}/configuration/${guild.id}/update`, (response) => {
                 toaster.create({
                     description: "Konfigurasi berhasil disimpan!",
                     type: "success"
                 });
+                setLoading(false);
             });
         }
         client.onDisconnect = () => checkConnection();
         checkConnection();
+
+        return () => {
+            if(configSub && typeof configSub.unsubscribe === "function") configSub.unsubscribe();
+            if(updateSub && typeof updateSub.unsubscribe === "function") updateSub.unsubscribe();
+        }
     }, [
         client,
-        guild
+        guild,
+        session
     ]);
 
     const saveConfiguration = () => {
@@ -116,7 +125,7 @@ function Configuration({ channels, client, guild, isSubscribed }) {
             nickname
         }
         client.publish({
-            destination: `/socket-request/configuration/${guild.id}/update`,
+            destination: `/socket-request/${session}/configuration/${guild.id}/update`,
             body: JSON.stringify(body),
             headers: { 'content-type': 'application/json' }
         });
@@ -144,7 +153,9 @@ function Configuration({ channels, client, guild, isSubscribed }) {
                     Atur server-mu untuk meningkatkan keamanan-nya.
                 </Box>
             </Box>
-            <Wrap>
+            <Wrap
+                my={3}
+            >
                 <WrapItem
                     w={["100%", "100%", "24%", "24%"]}
                 >
@@ -298,7 +309,7 @@ function Configuration({ channels, client, guild, isSubscribed }) {
                     </Card.Description>
 
                     <Fieldset.Root
-                        disabled={!isSubscribed || loaded || loading}
+                        disabled={!isSubscribed || !loaded || loading}
                     >
                         <Fieldset.Content>
                             <Wrap
@@ -386,9 +397,9 @@ function Configuration({ channels, client, guild, isSubscribed }) {
                                     w={["100%", "100%", "48%", "32%"]}
                                 >
                                     <Slider.Root
-                                        onValueChange={(e) => setAISensitivity(e.value)}
                                         max={10}
                                         min={0}
+                                        onValueChange={(e) => setAISensitivity(e.value)}
                                         value={aiSenstivity}
                                         w="100%"
                                     >

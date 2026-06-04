@@ -29,6 +29,12 @@ class ErrorResponse {
 
 @RestController
 public class ManageAccount extends AccountAuthentication {
+    @GetMapping("/account/current-session")
+    public ResponseEntity<String> currentSession(HttpSession session)
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(session.getId());
+    }
+
     @GetMapping("/account/current-token")
     public ResponseEntity<?> currentToken(HttpSession session)
     {

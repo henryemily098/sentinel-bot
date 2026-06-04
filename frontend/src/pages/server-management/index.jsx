@@ -70,7 +70,7 @@ function CardManagement({ icon, title, description }) {
 }
 
 const pageSize = 9;
-function ServerManagement({ guilds, user }) {
+function ServerManagement({ guilds, user, session }) {
     let { subPath, id } = useParams();
     const navigate = useNavigate();
 
@@ -109,9 +109,9 @@ function ServerManagement({ guilds, user }) {
                 newClient = createWebSocket(config.baseURL + "/web-socket");
                 newClient.onConnect = () => {
                     newClient.publish({
-                        destination: `/socket-request/subscriptions/${user.id}`
+                        destination: `/socket-request/${session}/subscriptions/${user.id}`
                     });
-                    newClient.subscribe(`/socket-response/subscriptions/${user.id}`, (response) =>  {
+                    newClient.subscribe(`/socket-response/${session}/subscriptions/${user.id}`, (response) =>  {
                         let sServers = JSON.parse(response.body);
                         let count = 0;
                         for (let i = 0; i < sServers.length; i++) {
@@ -134,6 +134,7 @@ function ServerManagement({ guilds, user }) {
         guilds,
         id,
         navigate,
+        session,
         subPath,
         user
     ]);

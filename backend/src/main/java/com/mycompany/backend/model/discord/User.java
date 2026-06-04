@@ -1,6 +1,5 @@
 package com.mycompany.backend.model.discord;
 
-import com.mycompany.backend.model.discord.*;
 import lombok.*;
 
 @Getter

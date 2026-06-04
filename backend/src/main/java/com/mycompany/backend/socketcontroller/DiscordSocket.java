@@ -15,8 +15,8 @@ public class DiscordSocket extends BaseSocket {
     @Value("${discordBot.token}")
     private String clientToken;
 
-    @MessageMapping("/guilds/{id}")
-    @SendTo("/socket-response/guilds/{id}")
+    @MessageMapping("/{session_id}/guilds/{id}")
+    @SendTo("/socket-response/{session_id}/guilds/{id}")
     public Guild handleServerInfo(@DestinationVariable String id, SimpMessageHeaderAccessor headerAccessor)
     {
         Guild guild = (Guild)headerAccessor.getSessionAttributes().get(id);
@@ -32,8 +32,8 @@ public class DiscordSocket extends BaseSocket {
         return guild;
     }
 
-    @MessageMapping("/guilds/{id}/channels")
-    @SendTo("/socket-response/guilds/{id}/channels")
+    @MessageMapping("/{session_id}/guilds/{id}/channels")
+    @SendTo("/socket-response/{session_id}/guilds/{id}/channels")
     public Channel[] handleChannelsInfo(@DestinationVariable String id, SimpMessageHeaderAccessor headerAccessor)
     {
         Channel[] channels = (Channel[])headerAccessor.getSessionAttributes().get(id + "-channels");

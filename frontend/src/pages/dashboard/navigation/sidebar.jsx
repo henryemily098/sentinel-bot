@@ -5,7 +5,6 @@ import {
     useColorMode
 } from "../../../components/ui/color-mode";
 import {
-    Badge,
     Box,
     Flex,
     Separator,
@@ -40,7 +39,7 @@ const pages = [
     }
 ]
 
-function Sidebar({ guild, isSubscribed }) {
+function Sidebar({ guild }) {
     const navigate = useNavigate();
     let { colorMode } = useColorMode();
     let { id, page } = useParams();
@@ -88,11 +87,6 @@ function Sidebar({ guild, isSubscribed }) {
                             {guild.name}
                         </Box>
                     </Stack>
-                    <Badge
-                        colorPalette={isSubscribed ? "blue" : "teal"}
-                    >
-                        {isSubscribed ? "Premium" : "Free"}
-                    </Badge>
                 </Flex>
                 {
                     pages.map((p) =>

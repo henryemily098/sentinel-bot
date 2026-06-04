@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import {
   getCurrentGuilds,
+  getCurrentSession,
   getCurrentUser
 } from "./api";
 
@@ -24,16 +25,12 @@ import Dashboard from "./pages/dashboard";
 function App() {
   let [user, setUser] = useState(null);
   let [guilds, setGuilds] = useState([]);
+  let [session, setSession] = useState(null);
   let [loading, setLoading] = useState(0);
   useEffect(() => {
     const updateLoading = () => {
       setLoading((l) => l + 1);
     }
-    getCurrentUser()
-      .then(res => setUser(res.data))
-      .catch((err) => {})
-      .finally(updateLoading);
-
     getCurrentGuilds()
       .then(res => {
         let filteredGuilds = res.data.filter(guild => ((guild.permissions & 0x20) === 0x20) || (guild.permissions & 0x8) || (guild.owner));
@@ -41,9 +38,19 @@ function App() {
       })
       .catch((err) => {})
       .finally(updateLoading)
+
+    getCurrentUser()
+      .then(res => setUser(res.data))
+      .catch((err) => {})
+      .finally(updateLoading);
+    
+    getCurrentSession()
+      .then(res => setSession(res.data))
+      .catch(err => {})
+      .finally(updateLoading);
   }, []);
   return (
-    loading < 2
+    loading < 3
     ? (
       <Flex
         align="center"
@@ -75,6 +82,7 @@ function App() {
               <ServerManagement
                 guilds={guilds}
                 user={user}
+                session={session}
               />
             }
           />
@@ -84,6 +92,7 @@ function App() {
               <ServerManagement
                 guilds={guilds}
                 user={user}
+                session={session}
               />
             }
           />
@@ -93,6 +102,7 @@ function App() {
               <ServerManagement
                 guilds={guilds}
                 user={user}
+                session={session}
               />
             }
           />
@@ -102,6 +112,7 @@ function App() {
               <ServerManagement
                 guilds={guilds}
                 user={user}
+                session={session}
               />
             }
           />
@@ -111,6 +122,7 @@ function App() {
               <Dashboard
                 guilds={guilds}
                 user={user}
+                session={session}
               />
             }
           />
@@ -120,6 +132,7 @@ function App() {
               <Dashboard
                 guilds={guilds}
                 user={user}
+                session={session}
               />
             }
           />
@@ -129,6 +142,7 @@ function App() {
               <Dashboard
                 guilds={guilds}
                 user={user}
+                session={session}
               />
             }
           />

@@ -1,7 +1,7 @@
 package com.mycompany.backend.controller.authentication;
 import com.mycompany.backend.model.authentication.Guild;
-import com.mycompany.backend.model.discord.User;
 import com.mycompany.backend.model.authentication.Token;
+import com.mycompany.backend.model.discord.User;
 import jakarta.servlet.http.HttpSession;
 import java.net.URLEncoder;
 import org.springframework.http.MediaType;

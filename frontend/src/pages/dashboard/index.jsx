@@ -19,10 +19,12 @@ import {
 } from "../../api";
 import config from "../../config.json";
 import Sidebar from "./navigation/sidebar";
-import Configuration from "./configuration";
-import Logs from "./logs";
 
-function Dashboard({ user, guilds }) {
+import Logs from "./logs";
+import Badwords from "./badwords";
+import Configuration from "./configuration";
+
+function Dashboard({ user, guilds, session }) {
     let { id, page } = useParams();
     const navigate = useNavigate();
     let [isSubscribed, setSubscribed] = useState(false);
@@ -40,23 +42,23 @@ function Dashboard({ user, guilds }) {
             newClient = createWebSocket(`${config.baseURL}/web-socket`);
             newClient.onConnect = () => {
                 newClient.publish({
-                    destination: `/socket-request/guilds/${id}`
+                    destination: `/socket-request/${session}/guilds/${id}`
                 });
                 newClient.publish({
-                    destination: `/socket-request/guilds/${id}/channels`
+                    destination: `/socket-request/${session}/guilds/${id}/channels`
                 });
                 newClient.publish({
-                    destination: `/socket-request/subscriptions/${user.id}/get/${id}`
+                    destination: `/socket-request/${session}/subscriptions/${user.id}/get/${id}`
                 });
-                newClient.subscribe(`/socket-response/guilds/${id}`, (response) => {
+                newClient.subscribe(`/socket-response/${session}/guilds/${id}`, (response) => {
                     let g = JSON.parse(response.body);
                     setGuild(g);
                 });
-                newClient.subscribe(`/socket-response/guilds/${id}/channels`, (response) => {
+                newClient.subscribe(`/socket-response/${session}/guilds/${id}/channels`, (response) => {
                     let cs = JSON.parse(response.body);
                     setChannels(cs || []);
                 });
-                newClient.subscribe(`/socket-response/subscriptions/${user.id}/get/${id}`, (response) => {
+                newClient.subscribe(`/socket-response/${session}/subscriptions/${user.id}/get/${id}`, (response) => {
                     let body = JSON.parse(response.body);
                     setSubscribed(body ? true : false);
                 });
@@ -71,6 +73,7 @@ function Dashboard({ user, guilds }) {
         guilds,
         page,
         navigate,
+        session,
         user
     ]);
 
@@ -102,11 +105,19 @@ function Dashboard({ user, guilds }) {
                     {
                         page && page === "logs"
                         ? <Logs />
+                        : page && page === "badwords"
+                        ? <Badwords
+                            client={client}
+                            guild={guild}
+                            isSubscribed={isSubscribed}
+                            session={session}
+                        />
                         : <Configuration
                             channels={channels}
                             client={client}
                             guild={guild}
                             isSubscribed={isSubscribed}
+                            session={session}
                         />
                     }
                 </Box>

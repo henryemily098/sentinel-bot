@@ -30,7 +30,7 @@ import {
 } from "react-router";
 
 const pageSize = 9;
-function Slots({ client, guilds, remainingSlots, replaceGuild, user }) {
+function Slots({ client, guilds, remainingSlots, replaceGuild, user, session }) {
     const navigate = useNavigate();
 
     let [loading, setLoading] = useState("");
@@ -52,7 +52,7 @@ function Slots({ client, guilds, remainingSlots, replaceGuild, user }) {
     
     useEffect(() => {
         client.onConnect = () => {
-            if(replaceGuild) client.subscribe(`/socket-response/subscriptions/${user.id}/replace/${replaceGuild.id}`, (response) => {
+            if(replaceGuild) client.subscribe(`/socket-response/${session}/subscriptions/${user.id}/replace/${replaceGuild.id}`, (response) => {
                 let url = response.body;
                 if(url) window.location.href = url;
             });
@@ -60,6 +60,7 @@ function Slots({ client, guilds, remainingSlots, replaceGuild, user }) {
     }, [
         client,
         replaceGuild,
+        session,
         user
     ]);
     
@@ -68,7 +69,7 @@ function Slots({ client, guilds, remainingSlots, replaceGuild, user }) {
 
         setLoading(id);
         client.publish({
-            destination: `/socket-request/subscriptions/${user.id}/replace/${replaceGuild.id}`,
+            destination: `/socket-request/${session}/subscriptions/${user.id}/replace/${replaceGuild.id}`,
             body: id,
             headers: { 'content-type': 'text/plain' }
         });
@@ -175,7 +176,7 @@ function Slots({ client, guilds, remainingSlots, replaceGuild, user }) {
                                                 ? (
                                                     loading.length
                                                     ? loading !== guild.id
-                                                    : false
+                                                    : true
                                                 )
                                                 : false
                                             }

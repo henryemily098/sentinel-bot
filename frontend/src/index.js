@@ -8,6 +8,9 @@ import {
   ColorModeProvider
 } from "./components/ui/color-mode";
 import {
+  Toaster
+} from "./components/ui/toaster";
+import {
   ChakraProvider,
   createSystem,
   defaultConfig,
@@ -56,6 +59,7 @@ root.render(
         <BrowserRouter>
           <ColorModeProvider forcedTheme="dark">
             <App />
+            <Toaster />
           </ColorModeProvider>
         </BrowserRouter>
       </HelmetProvider>
