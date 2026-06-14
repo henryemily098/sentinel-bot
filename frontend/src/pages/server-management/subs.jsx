@@ -56,7 +56,7 @@ const paymentMethods = createListCollection({
     ]
 });
 
-function Subs({ client, guild, user }) {
+function Subs({ client, guild, user, session }) {
     const navigate = useNavigate();
 
     let [loading, setLoading] = useState(false);
@@ -67,7 +67,7 @@ function Subs({ client, guild, user }) {
         if(!guild) navigate("/server-management");
         else {
             client.onConnect = () => {
-                client.subscribe(`/socket-response/subscriptions/${user.id}/add/${guild.id}`, (response) => {
+                client.subscribe(`/socket-response/${session}/subscriptions/${user.id}/add/${guild.id}`, (response) => {
                     let url = response.body;
                     if(url) window.location.href = url;
                     else setLoading(false);
@@ -78,6 +78,7 @@ function Subs({ client, guild, user }) {
         client,
         guild,
         navigate,
+        session,
         user
     ]);
 
@@ -97,16 +98,15 @@ function Subs({ client, guild, user }) {
 
     const submitForm = () => {
         if(plan.length === 0 || paymentMethod.length === 0) return;
-
         let body = {
             username: user.username,
             email: user.email,
             time: convertTime(plan[0].value),
-            paymentMethod: paymentMethod[0]
+            paymentMethod: paymentMethod[0].value
         }
         setLoading(true);
         client.publish({
-            destination: `/socket-request/subscriptions/${user.id}/add/${guild.id}`,
+            destination: `/socket-request/${session}/subscriptions/${user.id}/add/${guild.id}`,
             body: JSON.stringify(body),
             headers: { 'content-type': 'application/json' }
         });

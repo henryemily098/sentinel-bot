@@ -1,9 +1,13 @@
 package com.mycompany.backend.controller.authentication;
+import com.mycompany.backend.model.Configuration;
 import com.mycompany.backend.model.authentication.Guild;
 import com.mycompany.backend.model.authentication.Token;
 import com.mycompany.backend.model.discord.User;
+import com.mycompany.backend.repository.ConfigurationRepo;
 import jakarta.servlet.http.HttpSession;
 import java.net.URLEncoder;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
@@ -14,6 +18,9 @@ import org.springframework.web.client.RestClient;
 
 @Controller
 public class LoginAccount extends AccountAuthentication {
+    @Autowired
+    private ConfigurationRepo repository;
+
     @GetMapping("/login")
     public String authentication(@RequestParam(value="server_id", required=false) String serverId, @RequestParam(value="guild", required=false) String guild, HttpSession session)
     {
@@ -79,7 +86,22 @@ public class LoginAccount extends AccountAuthentication {
             session.setAttribute("guilds", guilds);
             session.setAttribute("clientGuilds", clientGuilds);
             
-            if(serverId != null) return this.directDashboard(serverId);
+            if(serverId != null)
+            {
+                Configuration configuration = this.repository.findConfigurationById(serverId).orElse(null);
+                if(configuration == null)
+                {
+                    configuration = new Configuration();
+                    configuration.setId(serverId);
+                    configuration.setBadwordsEnabled(true);
+                    configuration.setScammerDetected(true);
+                    configuration.setPhisingLinkDetected(true);
+                    configuration.setLogChannelId(null);
+                    configuration.setPrefix("!");
+                    this.repository.save(configuration);
+                }
+                return this.directDashboard(serverId);
+            }
             return this.directDashboard();
         } catch (Exception e) {
             e.printStackTrace();

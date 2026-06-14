@@ -6,15 +6,17 @@ import {
     Box,
     Button,
     Card,
+    Code,
     Combobox,
     Container,
     Field,
     Fieldset,
+    For,
     Input,
     Portal,
-    Slider,
     Stack,
     Switch,
+    Text,
     useFilter,
     useListCollection,
     Wrap,
@@ -25,7 +27,6 @@ import {
 } from "../../components/ui/toaster";
 import {
     BsFillDiagram3Fill,
-    BsFillExclamationTriangleFill,
     BsMegaphone,
     BsPerson,
     BsWindowSidebar
@@ -33,6 +34,7 @@ import {
 import {
     FaHashtag
 } from "react-icons/fa";
+import Action from "./actions";
 
 const channelIcons = {
     0: <FaHashtag />,
@@ -51,12 +53,9 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
     let [nickname, setNickname] = useState("");
     let [prefix, setPrefix] = useState("");
     let [logChannelId, setLogChannelId] = useState([]);
-    let [aiSenstivity, setAISensitivity] = useState([0]);
     let [badwordsEnabled, setBadwordsEnabled] = useState(false);
-    let [sexualHarassmentDetected, setSexualHarassmentDetected] = useState(false);
-    let [groomingDetected, setGroomingDetected] = useState(false);
+    let [saGroomingDetected, setSAGroomingDetected] = useState(false);
     let [scammerDetected, setScammerDetected] = useState(false);
-    let [onlineGambleDetected, setOnlineGambleDetected] = useState(false);
     let [phisingLinkDetected, setPhisingLinkDetected] = useState(false);
 
     useEffect(() => {
@@ -77,12 +76,9 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                 setNickname(cfg.nickname || "");
                 setPrefix(cfg.prefix);
                 setLogChannelId(cfg.logChannelId ? [cfg.logChannelId] : []);
-                setAISensitivity([cfg.aisentivity]);
                 setBadwordsEnabled(cfg.badwordsEnabled);
-                setSexualHarassmentDetected(cfg.sexualHarassmentDetected);
-                setGroomingDetected(cfg.groomingDetected);
+                setSAGroomingDetected(cfg.saGroomingDetected);
                 setScammerDetected(cfg.scammerDetected);
-                setOnlineGambleDetected(cfg.onlineGambleDetected);
                 setPhisingLinkDetected(cfg.phisingLinkDetected);
                 setLoaded(true);
             });
@@ -108,17 +104,15 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
     ]);
 
     const saveConfiguration = () => {
+        if(!isSubscribed) return;
         if(!client.connected) return;
         setLoading(true);
         
         let body = {
             id: guild.id,
             badwordsEnabled,
-            aisentivity: aiSenstivity[0],
-            sexualHarassmentDetected,
-            groomingDetected,
+            saGroomingDetected,
             scammerDetected,
-            onlineGambleDetected,
             phisingLinkDetected,
             logChannelId: logChannelId[0],
             prefix,
@@ -157,7 +151,7 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                 my={3}
             >
                 <WrapItem
-                    w={["100%", "100%", "24%", "24%"]}
+                    w={["100%", "100%", "32%", "32%"]}
                 >
                     <Card.Root
                         w="100%"
@@ -192,7 +186,7 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                     </Card.Root>
                 </WrapItem>
                 <WrapItem
-                    w={["100%", "100%", "24%", "24%"]}
+                    w={["100%", "100%", "32%", "32%"]}
                 >
                     <Card.Root
                         w="100%"
@@ -227,7 +221,7 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                     </Card.Root>
                 </WrapItem>
                 <WrapItem
-                    w={["100%", "100%", "24%", "24%"]}
+                    w={["100%", "100%", "32%", "32%"]}
                 >
                     <Card.Root
                         w="100%"
@@ -256,41 +250,6 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                                     fontSize="md"
                                 >
                                     Roles
-                                </Box>
-                            </Stack>
-                        </Card.Body>
-                    </Card.Root>
-                </WrapItem>
-                <WrapItem
-                    w={["100%", "100%", "24%", "24%"]}
-                >
-                    <Card.Root
-                        w="100%"
-                    >
-                        <Card.Body>
-                            <Stack
-                                direction="column"
-                                gap={0}
-                            >
-                                <Box
-                                    as="h2"
-                                    fontSize="md"
-                                    fontWeight="bold"
-                                >
-                                    <BsFillExclamationTriangleFill />
-                                </Box>
-                                <Box
-                                    as="h2"
-                                    fontSize="xl"
-                                    fontWeight="bold"
-                                >
-                                    0
-                                </Box>
-                                <Box
-                                    as="h2"
-                                    fontSize="md"
-                                >
-                                    Pelanggaran
                                 </Box>
                             </Stack>
                         </Card.Body>
@@ -396,38 +355,13 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                                 <WrapItem
                                     w={["100%", "100%", "48%", "32%"]}
                                 >
-                                    <Slider.Root
-                                        max={10}
-                                        min={0}
-                                        onValueChange={(e) => setAISensitivity(e.value)}
-                                        value={aiSenstivity}
-                                        w="100%"
-                                    >
-                                        <Stack
-                                            direction="row"
-                                            justify="space-between"
-                                        >
-                                            <Slider.Label>AI Sensitivity</Slider.Label>
-                                            <Slider.ValueText />
-                                        </Stack>
-                                        <Slider.Control>
-                                            <Slider.Track>
-                                                <Slider.Range />
-                                            </Slider.Track>
-                                            <Slider.Thumbs rounded="full" />
-                                        </Slider.Control>
-                                    </Slider.Root>
-                                </WrapItem>
-                                <WrapItem
-                                    w={["100%", "100%", "48%", "32%"]}
-                                >
                                     <Field.Root>
                                         <Field.Label>
-                                            Sexual Harrasment Detection
+                                            Badwords Detected
                                         </Field.Label>
                                         <Switch.Root
-                                            checked={sexualHarassmentDetected}
-                                            onCheckedChange={(e) =>setSexualHarassmentDetected(e.checked)}
+                                            checked={badwordsEnabled}
+                                            onCheckedChange={(e) => setBadwordsEnabled(e.checked)}
                                         >
                                             <Switch.HiddenInput />
                                             <Switch.Control>
@@ -444,8 +378,8 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                                             Grooming Detection
                                         </Field.Label>
                                         <Switch.Root
-                                            checked={groomingDetected}
-                                            onCheckedChange={(e) => setGroomingDetected(e.checked)}
+                                            checked={saGroomingDetected}
+                                            onCheckedChange={(e) => setSAGroomingDetected(e.checked)}
                                         >
                                             <Switch.HiddenInput />
                                             <Switch.Control>
@@ -464,24 +398,6 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                                         <Switch.Root
                                             checked={scammerDetected}
                                             onCheckedChange={(e) => setScammerDetected(e.checked)}
-                                        >
-                                            <Switch.HiddenInput />
-                                            <Switch.Control>
-                                                <Switch.Thumb />
-                                            </Switch.Control>
-                                        </Switch.Root>
-                                    </Field.Root>
-                                </WrapItem>
-                                <WrapItem
-                                    w={["100%", "100%", "48%", "32%"]}
-                                >
-                                    <Field.Root>
-                                        <Field.Label>
-                                            Online Gamble Detection
-                                        </Field.Label>
-                                        <Switch.Root
-                                            checked={onlineGambleDetected}
-                                            onCheckedChange={(e) => setOnlineGambleDetected(e.checked)}
                                         >
                                             <Switch.HiddenInput />
                                             <Switch.Control>
@@ -523,6 +439,52 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                             </Stack>
                         </Fieldset.Content>
                     </Fieldset.Root>
+                </Card.Body>
+            </Card.Root>
+            
+            <Action
+                client={client}
+                guild={guild}
+                isSubscribed={isSubscribed}
+                session={session}
+            />
+
+            <Card.Root>
+                <Card.Body
+                    gapY={3}
+                >
+                    <Card.Title>
+                        Catatan Mengenai Jumlah Pelanggaran
+                    </Card.Title>
+                    <Stack
+                        direction="column"
+                        gapX={2}
+                    >
+                        <For
+                            each={[
+                                {
+                                    colorPalette: "yellow",
+                                    label: "Kuning"
+                                },
+                                {
+                                    colorPalette: "orange",
+                                    label: "Jingga"
+                                },
+                                {
+                                    colorPalette: "red",
+                                    label: "Merah"
+                                }
+                            ]}
+                        >
+                            {(item, index) =>
+                                <Text
+                                    key={index}
+                                >
+                                    <Code colorPalette={item.colorPalette}>{item.label}</Code> adalah pelanggaran level {index+1}, setara dengan {index+1} pelanggaran.
+                                </Text>
+                            }
+                        </For>
+                    </Stack>
                 </Card.Body>
             </Card.Root>
         </Container>

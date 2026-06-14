@@ -6,17 +6,6 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-class UserPrimaryGuild {
-    private String identify_guild_id;
-    private boolean identify_enabled;
-    private String tag;
-    private String badge;
-}
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class User {
     private String id;
     private String username;

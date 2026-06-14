@@ -1,5 +1,6 @@
 package com.mycompany.backend.socketcontroller;
 
+import com.mycompany.backend.configuration.DiscordCacheService;
 import com.mycompany.backend.model.Subscriptions;
 import com.mycompany.backend.model.authentication.Guild;
 import com.mycompany.backend.repository.SubscriptionsRepo;
@@ -28,18 +29,20 @@ public class SubscriptionsSocket extends BaseSocket {
     @Autowired
     private SubscriptionsRepo repository;
 
-    @MessageMapping("/{session_id}/subscriptions/{userId}")
-    @SendTo("/socket-response/{session_id}/subscriptions/{userId}")
-    public List<Subscriptions> handleSubscriptionsList(@DestinationVariable String userId, SimpMessageHeaderAccessor headerAccessor)
+    @Autowired
+    private DiscordCacheService discordCacheService;
+
+    @MessageMapping("/{sessionId}/subscriptions/{userId}")
+    @SendTo("/socket-response/{sessionId}/subscriptions/{userId}")
+    public List<Subscriptions> handleSubscriptionsList(@DestinationVariable String sessionId, @DestinationVariable String userId)
     {
         List<Subscriptions> subscriptionsList = this.repository.findAllSubscriptionsByOwnerId(userId);
-        Guild[] guilds = (Guild[])headerAccessor.getSessionAttributes().get("clientGuilds");
-
+        Guild[] guilds = (Guild[])discordCacheService.getDiscordItem(sessionId + "-guilds");
         if(guilds == null)
         {
             try {
                 guilds = this.getClientGuilds(0, 3);
-                headerAccessor.getSessionAttributes().put("clientGuilds", guilds);
+                discordCacheService.setDiscordItem(sessionId + "-guilds", guilds);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -63,9 +66,9 @@ public class SubscriptionsSocket extends BaseSocket {
         return subscriptionsList;
     }
 
-    @MessageMapping("/{session_id}/subscriptions/{userId}/get/{guildId}")
-    @SendTo("/socket-response/{session_id}/subscriptions/{userId}/get/{guildId}")
-    public Subscriptions handleSubscriptionsList(@DestinationVariable String userId, @DestinationVariable String guildId)
+    @MessageMapping("/{sessionId}/subscriptions/{userId}/get/{guildId}")
+    @SendTo("/socket-response/{sessionId}/subscriptions/{userId}/get/{guildId}")
+    public Subscriptions handleSubscriptionsList(@DestinationVariable String sessionId, @DestinationVariable String userId, @DestinationVariable String guildId)
     {
         Subscriptions subsGuild = null;
         long currDate = new Date().getTime();
@@ -83,14 +86,13 @@ public class SubscriptionsSocket extends BaseSocket {
         return subsGuild;
     }
 
-    @MessageMapping("/{session_id}/subscriptions/{userId}/add/{guildId}")
-    @SendTo("/socket-response/{session_id}/subscriptions/{userId}/add/{guildId}")
-    public String handleSubscriptionsAdd(@DestinationVariable String userId, @DestinationVariable String guildId, @Payload GuildBody body)
+    @MessageMapping("/{sessionId}/subscriptions/{userId}/add/{guildId}")
+    @SendTo("/socket-response/{sessionId}/subscriptions/{userId}/add/{guildId}")
+    public String handleSubscriptionsAdd(@DestinationVariable String sessionId, @DestinationVariable String userId, @DestinationVariable String guildId, @Payload GuildBody body)
     {
-        Optional<Subscriptions> subsGuildRepo = this.repository.findSubscriptionsById(guildId);
+        Subscriptions subsGuild = this.repository.findSubscriptionsById(guildId).orElse(null);
         try {
-            Subscriptions subsGuild = null;
-            if(subsGuildRepo.isEmpty())
+            if(subsGuild == null)
             {
                 long currDate = new Date().getTime();
                 subsGuild = new Subscriptions();
@@ -99,11 +101,7 @@ public class SubscriptionsSocket extends BaseSocket {
                 subsGuild.setEndTimestamp(currDate + body.getTime());
                 subsGuild.setOwnerId(userId);
             }
-            else
-            {
-                subsGuild = subsGuildRepo.get();
-                subsGuild.setEndTimestamp(subsGuild.getEndTimestamp() + body.getTime());
-            }
+            else subsGuild.setEndTimestamp(subsGuild.getEndTimestamp() + body.getTime());
             this.repository.save(subsGuild);
             return this.getBaseURL() + "/auth/login?server_id=" + guildId + "&guild=1";
         } catch (Exception e) {
@@ -112,17 +110,15 @@ public class SubscriptionsSocket extends BaseSocket {
         }
     }
 
-    @MessageMapping("/{session_id}/subscriptions/{userId}/replace/{replaceGuildId}")
-    @SendTo("/socket-response/{session_id}/subscriptions/{userId}/replace/{replaceGuildId}")
-    public String handleSubscriptionsReplace(@DestinationVariable String session_id, @DestinationVariable String userId, @DestinationVariable String replaceGuildId, @Payload String guildId)
+    @MessageMapping("/{sessionId}/subscriptions/{userId}/replace/{replaceGuildId}")
+    @SendTo("/socket-response/{sessionId}/subscriptions/{userId}/replace/{replaceGuildId}")
+    public String handleSubscriptionsReplace(@DestinationVariable String sessionId, @DestinationVariable String userId, @DestinationVariable String replaceGuildId, @Payload String guildId)
     {
-        Optional<Subscriptions> subsGuildRepo = this.repository.findSubscriptionsById(replaceGuildId);
+        Subscriptions subsGuild = this.repository.findSubscriptionsById(replaceGuildId).orElse(null);
         try {
-            if(!subsGuildRepo.isEmpty())
+            if(subsGuild != null)
             {
-                Subscriptions subsGuild = subsGuildRepo.get();
                 this.repository.delete(subsGuild);
-
                 subsGuild.setId(guildId);
                 this.repository.save(subsGuild);
                 return this.getBaseURL() + "/auth/login?server_id=" + guildId + "&guild=1";

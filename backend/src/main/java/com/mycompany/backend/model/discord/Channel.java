@@ -1,65 +1,7 @@
 package com.mycompany.backend.model.discord;
 
-import com.mycompany.backend.model.discord.guild.Member;
 import lombok.*;
 import java.time.Instant;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-class DefaultReaction {
-    private String emoji_id;
-    private String emoji_name;
-}
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-class Tag {
-    private String id;
-    private String name;
-    private boolean moderated;
-    private String emoji_id;
-    private String emoji_name;
-}
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-class ThreadMember {
-    private String id;
-    private String user_id;
-    private Instant join_timestamp;
-    private int flags;
-    private Member member;
-}
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-class ThreadMetadata {
-    private boolean archived;
-    private int auto_archive_duration;
-    private Instant archive_timestamp;
-    private boolean locked;
-    private boolean invitable;
-    private Instant create_timestamp;
-}
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-class Overwrite {
-    private String id;
-    private int type;
-    private String allow;
-    private String deny;
-}
 
 @Getter
 @Setter

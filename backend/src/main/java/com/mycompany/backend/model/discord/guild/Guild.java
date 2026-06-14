@@ -2,39 +2,6 @@ package com.mycompany.backend.model.discord.guild;
 
 import lombok.*;
 
-import java.time.Instant;
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-class WelcomeScreenChannel {
-    private String channel_id;
-    private String description;
-    private String emoji_id;
-    private String emoji_name;
-}
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-class WelcomeScreen {
-    private String description;
-    private WelcomeScreenChannel[] welcome_channels;
-}
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-class IncidentsData {
-    private Instant invites_disabled_until;
-    private Instant dms_disabled_until;
-    private Instant dm_spam_detected_at;
-    private Instant raid_detected_at;
-}
-
 @Getter
 @Setter
 @AllArgsConstructor

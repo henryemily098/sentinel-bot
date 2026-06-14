@@ -6,29 +6,6 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-class Colors {
-    private int primary_color;
-    private int secondary_color;
-    private int tertiary_color;
-}
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-class Tags {
-    private String bot_id;
-    private String integration_id;
-    private Object premium_subscriber;
-    private String subscription_listing_id;
-    private Object available_for_purchase;
-    private Object guild_connections;
-}
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Role {
     private String id;
     private String name;

@@ -53,6 +53,7 @@ function Badwords({ client, guild, isSubscribed, session }) {
     ]);
 
     const saveConfiguration = () => {
+        if(!isSubscribed) return;
         if(!client.connected) return;
         setLoading(true);
 

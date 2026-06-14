@@ -104,7 +104,12 @@ function Dashboard({ user, guilds, session }) {
                 >
                     {
                         page && page === "logs"
-                        ? <Logs />
+                        ? <Logs
+                            client={client}
+                            guild={guild}
+                            isSubscribed={isSubscribed}
+                            session={session}
+                        />
                         : page && page === "badwords"
                         ? <Badwords
                             client={client}

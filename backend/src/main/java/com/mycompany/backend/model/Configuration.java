@@ -17,20 +17,11 @@ public class Configuration {
     @Column(name = "badwords_enabled")
     private boolean badwordsEnabled;
 
-    @Column(name = "ai_sensitivity")
-    private int AISentivity;
-
-    @Column(name = "sexual_harassment_detected")
-    private boolean sexualHarassmentDetected;
-
-    @Column(name = "grooming_detected")
-    private boolean groomingDetected;
+    @Column(name = "sa_grooming_detected")
+    private boolean saGroomingDetected;
 
     @Column(name = "scammer_detected")
     private boolean scammerDetected;
-
-    @Column(name = "online_gamble_detected")
-    private boolean onlineGambleDetected;
 
     @Column(name = "phising_link_detected")
     private boolean phisingLinkDetected;

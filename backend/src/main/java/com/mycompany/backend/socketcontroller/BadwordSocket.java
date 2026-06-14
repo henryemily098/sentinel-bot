@@ -13,9 +13,9 @@ public class BadwordSocket extends BaseSocket {
     @Autowired
     private BadwordListRepo repository;
 
-    @MessageMapping("/{session_id}/badword-list/{id}")
-    @SendTo("/socket-response/{session_id}/badword-list/{id}")
-    public Badwords handleBadwordList(@DestinationVariable String id)
+    @MessageMapping("/{sessionId}/badword-list/{id}")
+    @SendTo("/socket-response/{sessionId}/badword-list/{id}")
+    public Badwords handleBadwordList(@DestinationVariable String sessionId, @DestinationVariable String id)
     {
         Optional<Badwords> badwordsListResponse = this.repository.findBadwordListById(id);
         Badwords badwordsList = null;
@@ -28,9 +28,9 @@ public class BadwordSocket extends BaseSocket {
         return badwordsList;
     }
 
-    @MessageMapping("/{session_id}/badword-list/{id}/update")
-    @SendTo("/socket-response/{session_id}/badword-list/{id}/update")
-    public Badwords handleBadwordListUpdate(@DestinationVariable String id, @Payload Badwords badwords)
+    @MessageMapping("/{sessionId}/badword-list/{id}/update")
+    @SendTo("/socket-response/{sessionId}/badword-list/{id}/update")
+    public Badwords handleBadwordListUpdate(@DestinationVariable String sessionId, @DestinationVariable String id, @Payload Badwords badwords)
     {
         this.repository.save(badwords);
         return badwords;

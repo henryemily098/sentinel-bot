@@ -149,6 +149,7 @@ function ServerManagement({ guilds, user, session }) {
                     guilds={guilds.filter(guild => !subsServer.map(i => i.id).includes(guild.id))}
                     remainingSlots={remainingSlots}
                     replaceGuild={subsServer[0]}
+                    session={session}
                     user={user}
                 />
             )
@@ -164,6 +165,7 @@ function ServerManagement({ guilds, user, session }) {
                         let index2 = subsServer.map(i => i.id).indexOf(id);
                         return index2 > -1 ? null : guilds[index];
                     })()}
+                    session={session}
                     user={user}
                 />
             )

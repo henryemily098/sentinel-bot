@@ -79,18 +79,6 @@ function Landing() {
                         >
                             Tambahkan Ke Server <BsChevronRight />  
                         </Button>
-                        <Button
-                            colorPalette="gray"
-                            onClick={() => {
-                                const element = document.getElementById("pricing");
-                                if(element) element.scrollIntoView({ behavior: "smooth" });
-                            }}
-                            rounded="lg"
-                            size={["md", "md", "2xl", "2xl"]}
-                            variant="outline"
-                        >
-                            Lihat Harga  
-                        </Button>
                     </Stack>
                 </Reveal>
             </Box>

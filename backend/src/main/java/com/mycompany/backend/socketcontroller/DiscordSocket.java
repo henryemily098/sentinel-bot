@@ -1,30 +1,32 @@
 package com.mycompany.backend.socketcontroller;
 
+import com.mycompany.backend.configuration.DiscordCacheService;
 import com.mycompany.backend.model.discord.*;
 import com.mycompany.backend.model.discord.guild.Guild;
 import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.client.RestClient;
 
-@Getter
 @Controller
 public class DiscordSocket extends BaseSocket {
-    @Value("${discordBot.token}")
-    private String clientToken;
+    @Autowired
+    private DiscordCacheService discordCacheService;
 
-    @MessageMapping("/{session_id}/guilds/{id}")
-    @SendTo("/socket-response/{session_id}/guilds/{id}")
-    public Guild handleServerInfo(@DestinationVariable String id, SimpMessageHeaderAccessor headerAccessor)
+    @MessageMapping("/{sessionId}/guilds/{id}")
+    @SendTo("/socket-response/{sessionId}/guilds/{id}")
+    public Guild handleServerInfo(@DestinationVariable String sessionId, @DestinationVariable String id)
     {
-        Guild guild = (Guild)headerAccessor.getSessionAttributes().get(id);
+        String key = sessionId + "-" + id + "-" + "-guild";
+        Guild guild = (Guild)discordCacheService.getDiscordItem(key);
         if(guild == null)
         {
             try {
                 guild = this.getGuild(id, 0, 3);
-                headerAccessor.getSessionAttributes().put(id, guild);
+                discordCacheService.setDiscordItem(key, guild);
             } catch (Exception err) {
                 err.printStackTrace();
             }
@@ -32,16 +34,17 @@ public class DiscordSocket extends BaseSocket {
         return guild;
     }
 
-    @MessageMapping("/{session_id}/guilds/{id}/channels")
-    @SendTo("/socket-response/{session_id}/guilds/{id}/channels")
-    public Channel[] handleChannelsInfo(@DestinationVariable String id, SimpMessageHeaderAccessor headerAccessor)
+    @MessageMapping("/{sessionId}/guilds/{id}/channels")
+    @SendTo("/socket-response/{sessionId}/guilds/{id}/channels")
+    public Channel[] handleChannelsInfo(@DestinationVariable String sessionId, @DestinationVariable String id)
     {
-        Channel[] channels = (Channel[])headerAccessor.getSessionAttributes().get(id + "-channels");
+        String key = sessionId + "-" + id + "-" + "-channels";
+        Channel[] channels = (Channel[])discordCacheService.getDiscordItem(key);
         if(channels == null)
         {
             try {
                 channels = this.getGuildChannels(id, 0, 3);
-                headerAccessor.getSessionAttributes().put(id + "-channels", channels);
+                discordCacheService.setDiscordItem(key, channels);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -58,7 +61,7 @@ public class DiscordSocket extends BaseSocket {
         try {
             guild = rs.get()
                     .uri(this.getDiscordBaseURL() + "/guilds/" + id + "?with_counts=true")
-                    .header("Authorization", "Bot " + this.clientToken)
+                    .header("Authorization", "Bot " + this.getClientToken())
                     .retrieve()
                     .body(Guild.class);
         } catch (Exception e) {
@@ -82,7 +85,7 @@ public class DiscordSocket extends BaseSocket {
         try {
             channels = rs.get()
                     .uri(this.getDiscordBaseURL() + "/guilds/" + id + "/channels")
-                    .header("Authorization", "Bot " + this.clientToken)
+                    .header("Authorization", "Bot " + this.getClientToken())
                     .retrieve()
                     .body(Channel[].class);
         } catch (Exception e) {

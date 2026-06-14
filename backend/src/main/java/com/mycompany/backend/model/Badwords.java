@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "configuration")
+@Table(name = "badwords")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,28 +17,15 @@ public class Badwords {
     @Column(name = "list_badwords", columnDefinition = "LONGTEXT")
     private String listBadwords;
 
-    public void addWord(String word)
-    {
-        if(this.listBadwords == null) this.listBadwords = word;
-        else this.listBadwords += " " + word;
-    }
-
-    public void addWords(String[] words)
-    {
-        String content = "";
-        for(int i = 0; i < words.length; i++)
-        {
-            content += words[i];
-            if(i + 1 < words.length) content += " ";
-        }
-        if(this.listBadwords == null) this.listBadwords = content;
-        else this.listBadwords += " " + content;
-    }
-
     @Transient
-    public String[] getArrayListBadwords()
+    public boolean isBadwordsInMessage(String content)
     {
-        String[] emptyArray = {};
-        return this.listBadwords != null ? this.listBadwords.split(" ") : emptyArray;
+        if(this.listBadwords == null || listBadwords.isBlank()) return false;
+
+        String[] words = this.listBadwords.split(" ");
+        for (String word : words) {
+            if (content.contains(word)) return true;
+        }
+        return false;
     }
 }

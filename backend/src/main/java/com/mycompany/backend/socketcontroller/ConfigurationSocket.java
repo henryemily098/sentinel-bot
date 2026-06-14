@@ -1,63 +1,49 @@
 package com.mycompany.backend.socketcontroller;
 
+import com.mycompany.backend.configuration.DiscordCacheService;
 import com.mycompany.backend.model.Configuration;
-import com.mycompany.backend.model.discord.guild.Member;
+import com.mycompany.backend.model.discord.guild.*;
 import com.mycompany.backend.repository.ConfigurationRepo;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.*;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.client.RestClient;
-
-import java.util.Optional;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-class GuildMemberUpdate {
-    private String nick;
-    private String banner;
-    private String avatar;
-    private String bio;
-}
 
 @Controller
 public class ConfigurationSocket extends BaseSocket {
     @Autowired
+    private DiscordCacheService discordCacheService;
+
+    @Autowired
     private ConfigurationRepo repository;
 
-    @MessageMapping("/{session_id}/configuration/{id}")
-    @SendTo("/socket-response/{session_id}/configuration/{id}")
-    public Configuration handleConfigurationInfo(@DestinationVariable String id, SimpMessageHeaderAccessor headerAccessor)
+    @MessageMapping("/{sessionId}/configuration/{id}")
+    @SendTo("/socket-response/{sessionId}/configuration/{id}")
+    public Configuration handleConfigurationInfo(@DestinationVariable String sessionId, @DestinationVariable String id)
     {
-        Optional<Configuration> configResponse = this.repository.findConfigurationById(id);
-        Configuration configuration = null;
-        Member member = (Member)headerAccessor.getSessionAttributes().get("clientMemberUser-" + id);
+        String key = sessionId + "-" + id + "-" + "-me";
+        Configuration configuration = this.repository.findConfigurationById(id).orElse(null);
+        Member member = (Member)discordCacheService.getDiscordItem(key);
 
         if(member == null)
         {
             try {
                 member = getMember(id, this.getClientId(), 0, 3);
-                headerAccessor.getSessionAttributes().put("clientMemberUser-" + id, member);
+                discordCacheService.setDiscordItem(key, member);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        if(configResponse.isPresent()) configuration = configResponse.get();
-        else
+        if(configuration == null)
         {
             configuration = new Configuration();
             configuration.setId(id);
             configuration.setBadwordsEnabled(true);
-            configuration.setAISentivity(5);
-            configuration.setSexualHarassmentDetected(true);
-            configuration.setGroomingDetected(true);
             configuration.setScammerDetected(true);
-            configuration.setOnlineGambleDetected(true);
             configuration.setPhisingLinkDetected(true);
+            configuration.setSaGroomingDetected(true);
             configuration.setLogChannelId(null);
             configuration.setPrefix("!");
             this.repository.save(configuration);
@@ -66,24 +52,26 @@ public class ConfigurationSocket extends BaseSocket {
         return configuration;
     }
 
-    @MessageMapping("/{session_id}/configuration/{id}/update")
-    @SendTo("/socket-response/{session_id}/configuration/{id}/update")
-    public Configuration handleConfigurationUpdate(@DestinationVariable String id, @Payload Configuration config, SimpMessageHeaderAccessor headerAccessor)
+    @MessageMapping("/{sessionId}/configuration/{id}/update")
+    @SendTo("/socket-response/{sessionId}/configuration/{id}/update")
+    public Configuration handleConfigurationUpdate(@DestinationVariable String sessionId, @DestinationVariable String id, @Payload Configuration config)
     {
-        Member member = (Member)headerAccessor.getSessionAttributes().get("clientMemberUser-" + id);
+        String key = sessionId + "-" + id + "-" + "-me";
+        Member member = (Member)discordCacheService.getDiscordItem(key);
         if(member == null)
         {
             try {
                 member = getMember(id, this.getClientId(), 0, 3);
-                headerAccessor.getSessionAttributes().put("clientMemberUser-" + id, member);
+                discordCacheService.setDiscordItem(key, member);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
         if((member.getNick() == null && !config.getNickname().isEmpty()) || (member.getNick() != null && config.getNickname().isEmpty()) || (member.getNick() != null && !member.getNick().equals(config.getNickname()))) {
             try {
                 member = this.updateNicknameMember(id, config.getNickname().isEmpty() ? null : config.getNickname(), 0, 3);
-                headerAccessor.getSessionAttributes().put("clientMemberUser-" + id, member);
+                discordCacheService.setDiscordItem(key, member);
             } catch (Exception e) {
                 e.printStackTrace();
             }

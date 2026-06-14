@@ -24,7 +24,7 @@ import {
 const pages = [
     {
         Icon: BsColumnsGap,
-        label: "Konfigurasi",
+        label: "Configuration",
         value: "configuration"
     },
     {

@@ -7,5 +7,5 @@ import java.util.*;
 
 public interface ViolationRepo extends JpaRepository<Violation, String> {
     public List<Violation> findAllByUserId(String userId);
-    public List<Violation> findAllByGuildId(String guildId);
+    public List<Violation> findTop100ByGuildIdOrderByTimestamp(String guildId);
 }

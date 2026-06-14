@@ -12,18 +12,39 @@ Pastikan anda sudah memiliki software <a href="https://www.apachefriends.org/" t
 Setelah menginstall dari salah-satu kedua software tersebut, lakukan pembuatan database bernama `tubes_pbo` seperti berikut:<br/>
 <img src="https://raw.githubusercontent.com/henryemily098/assets/refs/heads/main/Screenshot%202026-06-04%20154833.png" height="300px" />
 
-<br/>
+### KONFIGURASI BACKEND
+Anda harus membuat sebuah file bernama `.env` pada projek `backend` (langsung di root-nya). Atribut yang dibutuhkan adalah sebagai berikut:
+```
+OPEN_AI_APIKEY=
+DISCORD_BOT_CLIENTID=
+DISCORD_BOT_CLIENTSECRET=
+DISCORD_BOT_CALLBACKURL=
+```
 
-Setelah melakukan konfigurasi terhadap database, sekarang anda bisa mulai melakukan konfigurasi terhadap credential-credential penting pada Bot ini. Jika anda mempunyai bot sendiri, anda bisa menyesuaikan dengan <a target="_blank" href="https://drive.google.com/file/d/1s6F_1Huy_g7lhe4J9tXzYAQdKsSnfEmC/view?usp=sharing">template credentials</a> berikut atau jika anda belum punya bot, anda bisa mengunjukin <a target="_blank" href="https://discord.com/developers/applications">Discord Developer Portal</a> untuk membuat Bot dan mendapatkan credentials yang dibutuhkan.
+`OPEN_AI_APIKEY` bisa didapatkan melalui situs <a href="https://platform.openai.com/home">OpenAI</a>, disini anda hanya perlu membuat API Key yang nanti-nya akan anda masukkan pada atribut `OPEN_AI_APIKEY`.
+<img src="https://github.com/henryemily098/assets/blob/main/Screenshot%202026-06-14%20164630.png?raw=true" height="300px" /><br/>
 
-Anda juga bisa menggunakan credentials test yang telah kami sediakan untuk tiap bagian bot ini:
-<ul>
-    <li><a target="_blank" href="https://drive.google.com/file/d/1xB-zzAQoAlCWH8A4NlbyEBPVw0h_egGI/view?usp=sharing">Frontend</a></li>
-    <li><a target="_blank" href="https://drive.google.com/file/d/1MzQzORdzVHj2R3hHMKvXUrWZRBdY92T1/view?usp=sharing">Backend</a></li>
-    <li><a target="_blank" href="https://drive.google.com/file/d/1WX_dNn7LSoY3waR2Q8e47iFpQkAu6VXx/view?usp=sharing">Botend</a></li>
-</ul>
+`DISCORD_BOT_CLIENTID`, `DISCORD_BOT_CLIENTSECRET`, dan `DISCORD_BOT_CALLBACKURL` bisa didapatkan dari <a href="https://discord.com/developers/applications">Discord Developer Portal</a>, tepatnya ketika anda memilih App anda, pada halaman `OAuth2`. Sementara untuk `DISCORD_BOT_TOKEN`, bisa kalian dapat pada halaman `Bot` tepat di bawah halaman `OAuth2`.
 
-Isi credentials-credentials tersebut lalu sudah bisa menjalankan Sentinel Bot anda sendiri.
+<img src="https://github.com/henryemily098/assets/blob/main/Screenshot%202026-06-14%20163906.png?raw=true" height="300px" /><br/>
+<img src="https://github.com/henryemily098/assets/blob/main/Screenshot%202026-06-14%20164349.png?raw=true" height="300px" /><br/>
+
+### KONFIGURASI BOTEND
+Anda harus membuat sebuah file bernama `.env` pada projek `botend` (langsung di root-nya). Atribut yang dibutuhkan adalah sebagai berikut:
+```
+TOKEN=
+BASE_URL=http://localhost:3001
+PORT=3002
+```
+Mendapatkan `TOKEN` disini sama seperti cara mendapatkan `TOKEN` untuk <b>konfigurasi backend</b>. Lalu `PORT` dan `BASE_URL` dapat menyesuaikan kebutuhan. Namun perlu diingat kalau `PORT` dan `BASE_URL` ini juga terdaftar pada `application.properties` pada `backend`, sehingga anda harus pastikan antara di `BOTEND` dan `BACKEND` kedua-nya sinkron.
+
+### KONFIGURASI FRONTEND
+Untuk yang ini, anda tidak perlu membuat file apapun. Andah hanya perlu mengatur file <a href="https://github.com/henryemily098/sentinel-bot/blob/master/frontend/src/config.json">`/frotend/src/config.json`</a>, bahkan tidak perlu diubah sama sekali:
+```
+{
+    "baseURL": "http://localhost:3001"
+}
+```
 
 ## ⚠️CATATAN⚠️
 Membuka projek ini terutama backend menggunakan Netbeans memerlukan beberapa konfigurasi manual tambahan seperti Project Lombok. Disarankan untuk membuka project ini menggunakan <a target="_blank" href="https://www.jetbrains.com/idea/">IntelliJ</a>.
