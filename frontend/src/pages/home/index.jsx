@@ -21,7 +21,7 @@ function Home() {
                 direction="column"
             >
                 <Helmet>
-                    <title>Home - Sentinel Bot</title>
+                    <title>Sentinel Bot</title>
                 </Helmet>
                 <Landing />
                 <Feature />
