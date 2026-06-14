@@ -27,6 +27,32 @@ public class ServerDashboard extends BaseServerDashboard {
         ArrayList<Guild> guilds = filteredGuilds((Guild[])session.getAttribute("guilds"));
         Guild guild = findGuild(guilds, id);
 
+        if(guild != null)
+        {
+            model.addAttribute("title", "Dashboard - Sentinel Bot");
+            model.addAttribute("description", "Dashboard of " + guild.getName());
+        }
+        return guild != null
+                ? (this.getBaseURL().equals("http://localhost:3000") ? "redirect:" + this.getBaseURL() + "/dashboard/" + id : "index.html")
+                : "redirect:" + (this.getBaseURL().equals("http://localhost:3000") ? this.getBaseURL() : "") + "/server-management";
+    }
+
+    @GetMapping("/{id}/{feature}")
+    public String featurePage(@PathVariable("id") String id, @PathVariable("feature") String feature, HttpSession session, Model model)
+    {
+        if(!feature.equals("badwords") && !feature.equals("logs")) return "redirect:" + (this.getBaseURL().equals("http://localhost:3000") ? this.getBaseURL() : "") + "/dashboard/" + id;
+
+        Token token = (Token)session.getAttribute("token");
+        if(token == null) return this.directAuth();
+
+        ArrayList<Guild> guilds = filteredGuilds((Guild[])session.getAttribute("guilds"));
+        Guild guild = findGuild(guilds, id);
+
+        if(guild != null)
+        {
+            model.addAttribute("title", "Dashboard - Sentinel Bot");
+            model.addAttribute("description", "Dashboard of " + guild.getName());
+        }
         return guild != null
                 ? (this.getBaseURL().equals("http://localhost:3000") ? "redirect:" + this.getBaseURL() + "/dashboard/" + id : "index.html")
                 : "redirect:" + (this.getBaseURL().equals("http://localhost:3000") ? this.getBaseURL() : "") + "/server-management";
