@@ -21,6 +21,7 @@ import Navbar from "./navigation/navbar";
 import Home from "./pages/home";
 import ServerManagement from "./pages/server-management";
 import Dashboard from "./pages/dashboard";
+import NotFound from "./pages/not-found";
 
 function App() {
   let [user, setUser] = useState(null);
@@ -144,6 +145,12 @@ function App() {
                 user={user}
                 session={session}
               />
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <NotFound />
             }
           />
         </Routes>

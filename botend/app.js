@@ -32,6 +32,11 @@ const client = new Client({
     ]
 });
 
+const colors = {
+    1: "#FFFF00",
+    2: "#FF0000",
+    3: "#FFA500"
+}
 client.baseURL = process.env.BASE_URL;
 
 client.on(Events.ClientReady, (readyClient) => console.log(`[SERVER] ${readyClient.user.username} it's ready!`));
@@ -54,11 +59,6 @@ client.on(Events.MessageCreate, async(message) => {
         let jsonResponse = await response.json();
         if(jsonResponse.violation.toLowerCase() === "no") return;
 
-        const colors = {
-            1: "#FFFF00",
-            2: "#FF0000",
-            3: "#FFA500"
-        }
         let embed = new EmbedBuilder()
             .setColor(colors[jsonResponse.reason.level])
             .setAuthor({
@@ -113,4 +113,63 @@ app.post("/guilds/:id/members", async(req, res) => {
                 return req.body;
             })()
         );
+});
+
+app.post("/guilds/:id/channels/:channelId/create-message", async(req, res) => {
+    if(!client.isReady()) return;
+
+    let { id, channelId } = req.params;
+    let guild = client.guilds.cache.get(id);
+    if(!guild) return;
+
+    let channel = guild.channels.cache.get(channelId);
+    if(!channel) return;
+    try {
+        let body = req.body;
+        let user = client.users.cache.get(body.userId);
+        let embed = new EmbedBuilder()
+            .setColor(colors[body.level])
+            .setAuthor({
+                name: user.username,
+                iconURL: user.displayAvatarURL({ size: 1024 })
+            })
+            .setFields([
+                {
+                    name: "Username",
+                    value: user.username,
+                    inline: true
+                },
+                {
+                    name: "ID",
+                    value: user.id,
+                    inline: true
+                },
+                {
+                    name: "Date",
+                    value: `${new Date(body.timestamp).toLocaleString()}`,
+                    inline: true
+                },
+                {
+                    name: "Level",
+                    value: `${body.level}`,
+                    inline: true
+                },
+                {
+                    name: "Reason",
+                    value: body.reason,
+                    inline: true
+                },
+                {
+                    name: "Location",
+                    value: `[Click here](https://discord.com/channels/${id}/${body.channelId}/${body.messageId})`,
+                    inline: true
+                }
+            ]);
+        await channel.send({
+            embeds: [embed]
+        });
+    } catch (error) {
+        console.log(error);
+    }
+    return res.sendStatus(204);
 });

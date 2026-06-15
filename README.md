@@ -18,7 +18,7 @@ Anda harus membuat sebuah file bernama `.env` pada projek `backend` (langsung di
 OPEN_AI_APIKEY=
 DISCORD_BOT_CLIENTID=
 DISCORD_BOT_CLIENTSECRET=
-DISCORD_BOT_CALLBACKURL=
+DISCORD_BOT_TOKEN=
 ```
 
 `OPEN_AI_APIKEY` bisa didapatkan melalui situs <a href="https://platform.openai.com/home">OpenAI</a>, disini anda hanya perlu membuat API Key yang nanti-nya akan anda masukkan pada atribut `OPEN_AI_APIKEY`.
@@ -36,15 +36,7 @@ TOKEN=
 BASE_URL=http://localhost:3001
 PORT=3002
 ```
-Mendapatkan `TOKEN` disini sama seperti cara mendapatkan `TOKEN` untuk <b>konfigurasi backend</b>. Lalu `PORT` dan `BASE_URL` dapat menyesuaikan kebutuhan. Namun perlu diingat kalau `PORT` dan `BASE_URL` ini juga terdaftar pada `application.properties` pada `backend`, sehingga anda harus pastikan antara di `BOTEND` dan `BACKEND` kedua-nya sinkron.
-
-### KONFIGURASI FRONTEND
-Untuk yang ini, anda tidak perlu membuat file apapun. Andah hanya perlu mengatur file <a href="https://github.com/henryemily098/sentinel-bot/blob/master/frontend/src/config.json">`/frotend/src/config.json`</a>, bahkan tidak perlu diubah sama sekali:
-```
-{
-    "baseURL": "http://localhost:3001"
-}
-```
+Mendapatkan `TOKEN` disini sama seperti cara mendapatkan `TOKEN` untuk <b>konfigurasi backend</b>.
 
 ## ⚠️CATATAN⚠️
 Membuka projek ini terutama backend menggunakan Netbeans memerlukan beberapa konfigurasi manual tambahan seperti Project Lombok. Disarankan untuk membuka project ini menggunakan <a target="_blank" href="https://www.jetbrains.com/idea/">IntelliJ</a>.

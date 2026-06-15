@@ -98,7 +98,13 @@ public class ViolationController extends BaseViolationController {
             }
             else
             {
-                ConversationResponse conversationResponse = openAI.getConversation(conversation.getId());
+                ConversationResponse conversationResponse = null;
+                try {
+                    conversationResponse = openAI.getConversation(conversation.getId());
+                } catch(Exception err) {
+                    err.printStackTrace();
+                }
+
                 if(conversationResponse == null)
                 {
                     conversationResponse = openAI.createConversation();
@@ -186,6 +192,7 @@ public class ViolationController extends BaseViolationController {
                     this.getViolationRepo().save(violation);
                     doAction(serverId, output.getUserId());
 
+                    Configuration configuration = this.getConfigurationRepo().findConfigurationById(serverId).orElse(null);
                     Map<String, Object> user = this.getRs()
                             .post()
                             .uri(this.getDiscordBotEndPoint() + "/guilds/" + serverId + "/members")
@@ -197,12 +204,20 @@ public class ViolationController extends BaseViolationController {
                             "/socket-response/logs/" + violation.getGuildId(),
                             user
                     );
+                    if(configuration != null && configuration.getLogChannelId() != null) this.getRs()
+                            .post()
+                            .uri(this.getDiscordBotEndPoint() + "/guilds/" + configuration.getId() + "/channels/" + configuration.getLogChannelId() + "/create-message")
+                            .body(violation)
+                            .header("Authorization", "Bot " + this.getToken())
+                            .retrieve();
                 }
             }
 
             if(conversation.getCount() >= 15)
             {
                 openAI.deleteConversation(conversation.getId());
+                this.getConversationRepo().delete(conversation);
+
                 ConversationResponse conversationResponse = openAI.createConversation();
                 conversation.setId(conversationResponse.getId());
                 conversation.setCount(0);

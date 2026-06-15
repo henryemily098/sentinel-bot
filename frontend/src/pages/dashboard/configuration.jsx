@@ -7,18 +7,17 @@ import {
     Button,
     Card,
     Code,
-    Combobox,
     Container,
+    createListCollection,
     Field,
     Fieldset,
     For,
     Input,
     Portal,
+    Select,
     Stack,
     Switch,
     Text,
-    useFilter,
-    useListCollection,
     Wrap,
     WrapItem
 } from "@chakra-ui/react";
@@ -27,26 +26,13 @@ import {
 } from "../../components/ui/toaster";
 import {
     BsFillDiagram3Fill,
-    BsMegaphone,
     BsPerson,
     BsWindowSidebar
 } from "react-icons/bs";
-import {
-    FaHashtag
-} from "react-icons/fa";
 import Action from "./actions";
 
-const channelIcons = {
-    0: <FaHashtag />,
-    5: <BsMegaphone />
-}
-
 function Configuration({ channels, client, guild, isSubscribed, session }) {
-    let { contains } = useFilter({ sensitivity: "base" });
-    let { collection, filter } = useListCollection({
-        initialItems: channels.map((channel) => { return { label: channel.name, value: channel.id } }),
-        filter: contains
-    });
+    let [collection, setCollection] = useState(null);
     let [loading, setLoading] = useState(false);
     let [loaded, setLoaded] = useState(false);
 
@@ -62,6 +48,18 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
         let configSub = null;
         let updateSub = null;
 
+        setCollection(
+            createListCollection({
+                items: channels
+                    .filter(channel => channel.type === 0 || channel.type === 5)
+                    .map(i => {
+                        return {
+                            label: i.name,
+                            value: i.id
+                        }
+                    })
+            })
+        )
         const checkConnection = () => {
             if(!client.connected)
             {
@@ -98,6 +96,7 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
             if(updateSub && typeof updateSub.unsubscribe === "function") updateSub.unsubscribe();
         }
     }, [
+        channels,
         client,
         guild,
         session
@@ -310,47 +309,34 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                                 <WrapItem
                                     w={["100%", "100%", "48%", "32%"]}
                                 >
-                                    <Combobox.Root
+                                    <Select.Root
                                         collection={collection}
-                                        closeOnSelect
-                                        onInputValueChange={(e) => filter(e.inputValue)}
                                         onValueChange={(e) => setLogChannelId(e.value)}
-                                        openOnClick
                                         value={logChannelId}
                                     >
-                                        <Combobox.Label>
-                                            Log Channel
-                                        </Combobox.Label>
-                                        <Combobox.Control>
-                                            <Combobox.Input placeholder="Ketik untuk mencari channel" />
-                                            <Combobox.IndicatorGroup>
-                                                <Combobox.ClearTrigger />
-                                                <Combobox.Trigger />
-                                            </Combobox.IndicatorGroup>
-                                        </Combobox.Control>
+                                        <Select.HiddenSelect />
+                                        <Select.Label>Select Channel</Select.Label>
+                                        <Select.Control>
+                                            <Select.Trigger>
+                                                <Select.ValueText placeholder="Select channel" />
+                                            </Select.Trigger>
+                                            <Select.IndicatorGroup>
+                                                <Select.Indicator />
+                                            </Select.IndicatorGroup>
+                                        </Select.Control>
                                         <Portal>
-                                            <Combobox.Positioner>
-                                                <Combobox.Content>
-                                                    <Combobox.Empty>Item tidak ditemukan!</Combobox.Empty>
-                                                    {
-                                                        channels.filter(ch => ch.type === 0 || ch.type === 5).map(ch =>
-                                                            <Combobox.Item item={{ label: ch.name, value: ch.id }} key={ch.id}>
-                                                                <Stack
-                                                                    align="center"
-                                                                    direction="row"
-                                                                    gap={2}
-                                                                >
-                                                                    {channelIcons[ch.type]}
-                                                                    <Box as="span">{ch.name}</Box>
-                                                                </Stack>
-                                                                <Combobox.ItemIndicator />
-                                                            </Combobox.Item>
-                                                        )
-                                                    }
-                                                </Combobox.Content>
-                                            </Combobox.Positioner>
+                                            <Select.Positioner>
+                                            <Select.Content>
+                                                {collection && collection.items.map((channel) => (
+                                                    <Select.Item item={channel} key={channel.value}>
+                                                        {channel.label}
+                                                        <Select.ItemIndicator />
+                                                    </Select.Item>
+                                                ))}
+                                            </Select.Content>
+                                            </Select.Positioner>
                                         </Portal>
-                                    </Combobox.Root>
+                                    </Select.Root>
                                 </WrapItem>
                                 <WrapItem
                                     w={["100%", "100%", "48%", "32%"]}
@@ -480,7 +466,7 @@ function Configuration({ channels, client, guild, isSubscribed, session }) {
                                 <Text
                                     key={index}
                                 >
-                                    <Code colorPalette={item.colorPalette}>{item.label}</Code> adalah pelanggaran level {index+1}, setara dengan {index+1} pelanggaran.
+                                    <Code colorPalette={item.colorPalette}>{item.label}</Code> adalah pelanggaran level {index+1}, bobotnya adalah {index+1}.
                                 </Text>
                             }
                         </For>
